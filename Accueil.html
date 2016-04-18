@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<meta charset="utf-8">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+<link href="//cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css" rel="stylesheet">
+</head>
+<body>
+
+	<table id="t" class="table table-hover table-stripped">
+		<thead>
+			<tr></tr>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+
+	<script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<script>
+		var lines = [];
+		var headers;
+
+		$.ajax({
+			type: "GET",
+			url: "./BDD.csv",
+			dataType: "text",
+			success: function(data) {processData(data);}
+		});
+
+
+		function processData(allText) {
+			var allTextLines = allText.split(/\r\n|\n/);
+			headers = allTextLines[0].split(';');
+			for(var i=1, size=allTextLines.length; i<size; i++) {
+				line = allTextLines[i];
+				lines.push(line.split(';'));
+			}
+			displayData();
+		}
+
+
+		function displayData(filter) {
+			for(var i=0, size=headers.length; i<size; i++) {
+				$('#t thead tr').append('<th>'+headers[i]+'</th>');
+			}
+			var globalOutput = "";
+			for(var i=0, size=lines.length; i<size; i++) {
+				var line = lines[i];
+				var output = "<tr>";
+				for(var j=0, sizej=line.length; j<sizej; j++) {
+					var val = (line[j] != "") ? line[j] : '-';
+					if(val.indexOf('http://') != -1 || val.indexOf('https://') != -1) {
+						val = '<a href="'+val+'">'+val+'</a>';
+					}
+					output += "<td>"+val+"</td>";				
+				}
+				output += "</tr>";
+
+				if(filter != undefined && output.indexOf(filter) == -1) {
+					continue;
+				} 
+
+				globalOutput += output;
+			}
+			globalOutput = globalOutput.replace(/é/g,"&eacute;").replace(/è/g,"&egrave;");
+			$('#t tbody').html(globalOutput);
+		}
+
+
+
+	</script>
+    <p> Created By : Geoffrey BISCH</p>
+    </body>
+</html>
